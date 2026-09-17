@@ -81,29 +81,29 @@
 
                             <tr>
 
-                                <th class="px-3">
+                                {{--  <th class="px-3">
                                     ID
-                                </th>
+                                </th>  --}}
 
                                 <th>
                                     Producto
                                 </th>
 
-                                <th>
+                                {{--  <th>
                                     Precio
-                                </th>
+                                </th>  --}}
 
-                                <th>
+                                {{--  <th>
                                     Cantidad
-                                </th>
+                                </th>  --}}
 
                                 <th>
                                     Categoría
                                 </th>
 
-                                <th>
+                                {{--  <th>
                                     Proveedor
-                                </th>
+                                </th>  --}}
 
                                 <th class="text-center">
                                     Acciones
@@ -120,9 +120,9 @@
                                 <tr>
 
                                     {{-- ID --}}
-                                    <td class="px-3">
+                                    {{--  <td class="px-3">
                                         {{ $product->id }}
-                                    </td>
+                                    </td>  --}}
 
 
                                     {{-- Producto --}}
@@ -136,15 +136,15 @@
 
 
                                     {{-- Precio --}}
-                                    <td>
+                                    {{--  <td>
 
                                         $ {{ number_format($product->price, 0, ',', '.') }}
 
-                                    </td>
+                                    </td>  --}}
 
 
                                     {{-- Cantidad --}}
-                                    <td>
+                                    {{--  <td>
 
                                         <span class="badge text-bg-secondary">
 
@@ -152,7 +152,7 @@
 
                                         </span>
 
-                                    </td>
+                                    </td>  --}}
 
 
                                     {{-- Categoría --}}
@@ -164,11 +164,11 @@
 
 
                                     {{-- Proveedor --}}
-                                    <td>
+                                    {{--  <td>
 
                                         {{ $product->provider->name ?? 'Sin proveedor' }}
 
-                                    </td>
+                                    </td>  --}}
 
 
                                     {{-- Acciones --}}
@@ -177,10 +177,12 @@
                                         <div class="btn-group" role="group">
 
                                             {{-- Ver --}}
-                                            <a href="{{ route('products.show', $product) }}"
-                                                class="btn btn-sm btn-outline-secondary" title="Ver">
-                                                <i class="bi bi-eye"></i>
-                                            </a>
+                                            <button type="button" class="btn btn-sm btn-outline-secondary"
+                                                data-bs-toggle="modal" data-bs-target="#productModal{{ $product->id }}"
+                                                title="Ver información del producto">
+                                                <i class="bi bi-eye me-1"></i>
+                                                Ver
+                                            </button>
 
 
                                             {{-- Editar --}}
@@ -204,11 +206,10 @@
 
 
                                             {{-- PDF --}}
-                                            <button type="button" class="btn btn-sm btn-outline-secondary" title="PDF">
-
+                                            <a href="{{ route('products.pdf', $product) }}" target="_blank"
+                                                class="btn btn-sm btn-outline-secondary" title="Generar PDF">
                                                 <i class="bi bi-file-earmark-pdf"></i>
-
-                                            </button>
+                                            </a>
 
                                         </div>
 
@@ -238,6 +239,179 @@
                         </tbody>
 
                     </table>
+
+                    {{-- Modales de información de productos --}}
+                    @foreach ($products as $product)
+                        <div class="modal fade" id="productModal{{ $product->id }}" tabindex="-1"
+                            aria-labelledby="productModalLabel{{ $product->id }}" aria-hidden="true">
+
+                            <div class="modal-dialog modal-lg modal-dialog-centered">
+
+                                <div class="modal-content border-0 shadow">
+
+                                    {{-- Encabezado --}}
+                                    <div class="modal-header">
+
+                                        <h5 class="modal-title fw-bold" id="productModalLabel{{ $product->id }}">
+                                            <i class="bi bi-box-seam me-2"></i>
+                                            Información del producto
+                                        </h5>
+
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Cerrar"></button>
+
+                                    </div>
+
+                                    {{-- Contenido --}}
+                                    <div class="modal-body">
+
+                                        <div class="row g-4">
+
+                                            {{-- Imagen --}}
+                                            <div class="col-md-5">
+
+                                                <div
+                                                    class="border rounded p-3 h-100 d-flex justify-content-center align-items-center">
+
+                                                    @if ($product->image)
+                                                        <img src="{{ asset('storage/' . $product->image) }}"
+                                                            alt="{{ $product->name }}" class="img-fluid rounded"
+                                                            style="max-height: 300px;">
+                                                    @else
+                                                        <div class="text-center text-muted py-5">
+
+                                                            <i class="bi bi-image fs-1 d-block mb-2"></i>
+
+                                                            <span>Sin imagen</span>
+
+                                                        </div>
+                                                    @endif
+
+                                                </div>
+
+                                            </div>
+
+                                            {{-- Información --}}
+                                            <div class="col-md-7">
+
+                                                <div class="row g-3">
+
+                                                    {{-- Producto --}}
+                                                    <div class="col-12">
+
+                                                        <div class="border rounded p-3">
+
+                                                            <div class="small text-muted mb-1">
+                                                                Producto
+                                                            </div>
+
+                                                            <div class="fw-semibold">
+                                                                {{ $product->name }}
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- Precio --}}
+                                                    <div class="col-md-6">
+
+                                                        <div class="border rounded p-3">
+
+                                                            <div class="small text-muted mb-1">
+                                                                Precio
+                                                            </div>
+
+                                                            <div class="fw-semibold">
+                                                                $ {{ number_format($product->price, 0, ',', '.') }}
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- Cantidad --}}
+                                                    <div class="col-md-6">
+
+                                                        <div class="border rounded p-3">
+
+                                                            <div class="small text-muted mb-1">
+                                                                Cantidad disponible
+                                                            </div>
+
+                                                            <div>
+                                                                <span class="badge text-bg-secondary fs-6">
+                                                                    {{ $product->quantity }}
+                                                                </span>
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- Categoría --}}
+                                                    <div class="col-12">
+
+                                                        <div class="border rounded p-3">
+
+                                                            <div class="small text-muted mb-1">
+                                                                Categoría
+                                                            </div>
+
+                                                            <div class="fw-semibold">
+                                                                {{ $product->category->name ?? 'Sin categoría' }}
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                    {{-- Proveedor --}}
+                                                    <div class="col-12">
+
+                                                        <div class="border rounded p-3">
+
+                                                            <div class="small text-muted mb-1">
+                                                                Proveedor
+                                                            </div>
+
+                                                            <div class="fw-semibold">
+                                                                {{ $product->provider->name ?? 'Sin proveedor' }}
+                                                            </div>
+
+                                                        </div>
+
+                                                    </div>
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    {{-- Pie --}}
+                                    <div class="modal-footer">
+
+                                        <a href="{{ route('products.edit', $product) }}" class="btn btn-secondary">
+                                            <i class="bi bi-pencil me-1"></i>
+                                            Editar
+                                        </a>
+
+                                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                                            Cerrar
+                                        </button>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+                    @endforeach
+
 
                 </div>
 

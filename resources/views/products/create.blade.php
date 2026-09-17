@@ -58,11 +58,42 @@
 
             <form
                 action="{{ route('products.store') }}"
-                method="POST">
+                method="POST"
+                enctype="multipart/form-data"> // Permite enviar archivos
 
                 @csrf
 
                 <div class="row g-4">
+
+
+                    {{-- Imagen --}}
+                    <div class="col-12">
+
+                        <label
+                            for="image"
+                            class="form-label fw-semibold">
+
+                            Imagen del producto
+                            <span class="text-muted">*</span>
+
+                        </label>
+
+                        <input
+                            type="file"
+                            name="image"
+                            id="image"
+                            class="form-control @error('image') is-invalid @enderror"
+                            accept="image/*">
+
+                        @error('image')
+
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
 
                     {{-- Nombre --}}
                     <div class="col-12">
