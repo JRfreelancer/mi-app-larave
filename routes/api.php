@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProviderController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InventoryMovementController;
 
 
 Route::get('/categories', [CategoryController::class, 'index']);
@@ -25,3 +26,9 @@ Route::post('/providers', [ProviderController::class, 'store']);
 Route::get('/providers/{provider}', [ProviderController::class, 'show']);
 Route::put('/providers/{provider}', [ProviderController::class, 'update']);
 Route::delete('/providers/{provider}', [ProviderController::class, 'destroy']);
+
+// Rutas API de movimientos de inventario
+
+Route::get('/movements', [InventoryMovementController::class, 'index']);
+
+Route::post('/movements', [InventoryMovementController::class, 'store']);

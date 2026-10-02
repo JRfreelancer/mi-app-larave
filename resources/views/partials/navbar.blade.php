@@ -43,6 +43,13 @@
                     </a>
                 </li>
 
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ route('movements.index') }}">
+                        <i class="bi bi-arrow-left-right me-1"></i>
+                        Movimientos
+                    </a>
+                </li>
+
             </ul>
 
         </div>

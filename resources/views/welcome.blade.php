@@ -89,13 +89,13 @@
                                     Producto
                                 </th>
 
-                                {{--  <th>
+                                <th>
                                     Precio
-                                </th>  --}}
+                                </th>
 
-                                {{--  <th>
+                                <th>
                                     Cantidad
-                                </th>  --}}
+                                </th>
 
                                 <th>
                                     Categoría
@@ -136,23 +136,28 @@
 
 
                                     {{-- Precio --}}
-                                    {{--  <td>
+                                    <td>
 
                                         $ {{ number_format($product->price, 0, ',', '.') }}
 
-                                    </td>  --}}
+                                    </td>
 
 
                                     {{-- Cantidad --}}
-                                    {{--  <td>
-
+                                    <td>
                                         <span class="badge text-bg-secondary">
-
                                             {{ $product->quantity }}
 
+                                            @if($product->quantity < 5)
+                                                <i class="bi bi-circle-fill text-danger ms-1"
+                                                title="Stock bajo"></i>
+                                            @else
+                                                <i class="bi bi-circle-fill text-success ms-1"
+                                                title="Stock disponible"></i>
+                                            @endif
                                         </span>
+                                    </td>
 
-                                    </td>  --}}
 
 
                                     {{-- Categoría --}}
@@ -164,11 +169,11 @@
 
 
                                     {{-- Proveedor --}}
-                                    {{--  <td>
+                                    <td>
 
                                         {{ $product->provider->name ?? 'Sin proveedor' }}
 
-                                    </td>  --}}
+                                    </td>
 
 
                                     {{-- Acciones --}}
