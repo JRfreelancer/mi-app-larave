@@ -58,6 +58,7 @@
                     <i class="bi bi-box-arrow-up me-1"></i>
                     Salida
                 </button>
+
             </div>
         </div>
 
@@ -100,6 +101,7 @@
                                     <th>Motivo</th>
                                     <th>Observación</th>
                                     <th>Fecha</th>
+                                    <th class="text-center">Acción</th>
                                 </tr>
                             </thead>
 
@@ -128,26 +130,20 @@
 
                                         <td>
                                             @if ($movement->product->quantity == 0)
-
                                                 <span class="badge bg-danger">
                                                     <i class="bi bi-x-circle-fill me-1"></i>
                                                     Agotado
                                                 </span>
-
                                             @elseif ($movement->product->quantity < 10)
-
                                                 <span class="badge bg-warning text-dark">
                                                     <i class="bi bi-exclamation-triangle-fill me-1"></i>
                                                     Stock bajo
                                                 </span>
-
                                             @else
-
                                                 <span class="badge bg-success">
                                                     <i class="bi bi-check-circle-fill me-1"></i>
                                                     Stock alto
                                                 </span>
-
                                             @endif
                                         </td>
 
@@ -170,6 +166,14 @@
                                             {{ $movement->created_at->format('d/m/Y H:i') }}
                                         </td>
 
+                                        <td class="text-center">
+
+                                            <a href="{{ route('movements.pdf', $movement->id) }}" target="_blank"
+                                                class="btn btn-sm btn-outline-dark" title="Generar PDF">
+                                                <i class="bi bi-file-earmark-pdf"></i>
+                                            </a>
+
+                                        </td>
                                     </tr>
                                 @endforeach
 
@@ -266,390 +270,341 @@
     </div>
 
     <!-- Modal Salida -->
-<div
-    class="modal fade"
-    id="modalSalida"
-    tabindex="-1"
-    aria-labelledby="modalSalidaLabel"
-    aria-hidden="true"
->
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+    <div class="modal fade" id="modalSalida" tabindex="-1" aria-labelledby="modalSalidaLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
 
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalSalidaLabel">
-                    <i class="bi bi-box-arrow-up me-2"></i>
-                    Registrar salida
-                </h5>
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalSalidaLabel">
+                        <i class="bi bi-box-arrow-up me-2"></i>
+                        Registrar salida
+                    </h5>
 
-                <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar"
-                ></button>
-            </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
 
-            <div class="modal-body">
+                <div class="modal-body">
 
-                <div class="mb-3">
-                    <label for="salidaProducto" class="form-label">
-                        Producto
-                    </label>
+                    <div class="mb-3">
+                        <label for="salidaProducto" class="form-label">
+                            Producto
+                        </label>
 
-                    <select
-                        id="salidaProducto"
-                        name="product_id"
-                        class="form-select"
-                        required
-                    >
-                        <option value="" selected disabled>
-                            Seleccione un producto
-                        </option>
-
-                        @foreach ($products as $product)
-                            <option
-                                value="{{ $product->id }}"
-                                data-stock="{{ $product->quantity }}"
-                            >
-                                {{ $product->name }}
+                        <select id="salidaProducto" name="product_id" class="form-select" required>
+                            <option value="" selected disabled>
+                                Seleccione un producto
                             </option>
-                        @endforeach
-                    </select>
 
-                    <div
-                        id="stockDisponible"
-                        class="form-text mt-2"
-                    >
-                        Seleccione un producto para consultar el stock disponible.
+                            @foreach ($products as $product)
+                                <option value="{{ $product->id }}" data-stock="{{ $product->quantity }}">
+                                    {{ $product->name }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <div id="stockDisponible" class="form-text mt-2">
+                            Seleccione un producto para consultar el stock disponible.
+                        </div>
                     </div>
-                </div>
 
-                <div class="mb-3">
-                    <label for="salidaCantidad" class="form-label">
-                        Cantidad
-                    </label>
+                    <div class="mb-3">
+                        <label for="salidaCantidad" class="form-label">
+                            Cantidad
+                        </label>
 
-                    <input
-                        type="number"
-                        id="salidaCantidad"
-                        name="quantity"
-                        class="form-control"
-                        min="1"
-                        required
-                    >
+                        <input type="number" id="salidaCantidad" name="quantity" class="form-control" min="1"
+                            required>
 
-                    <div
-                        id="mensajeStock"
-                        class="invalid-feedback"
-                    >
-                        La cantidad supera el stock disponible.
+                        <div id="mensajeStock" class="invalid-feedback">
+                            La cantidad supera el stock disponible.
+                        </div>
                     </div>
+
+                    <div class="mb-3">
+                        <label for="salidaMotivo" class="form-label">
+                            Motivo
+                        </label>
+
+                        <input type="text" id="salidaMotivo" name="reason" class="form-control"
+                            placeholder="Ej. Venta">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="salidaObservacion" class="form-label">
+                            Observación
+                        </label>
+
+                        <textarea id="salidaObservacion" name="observation" class="form-control" rows="3"
+                            placeholder="Observaciones del movimiento"></textarea>
+                    </div>
+
                 </div>
 
-                <div class="mb-3">
-                    <label for="salidaMotivo" class="form-label">
-                        Motivo
-                    </label>
+                <div class="modal-footer">
 
-                    <input
-                        type="text"
-                        id="salidaMotivo"
-                        name="reason"
-                        class="form-control"
-                        placeholder="Ej. Venta"
-                    >
-                </div>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
 
-                <div class="mb-3">
-                    <label for="salidaObservacion" class="form-label">
-                        Observación
-                    </label>
+                    <button type="button" class="btn btn-gray" id="btnRegistrarSalida">
+                        <i class="bi bi-check-lg me-1"></i>
+                        Registrar salida
+                    </button>
 
-                    <textarea
-                        id="salidaObservacion"
-                        name="observation"
-                        class="form-control"
-                        rows="3"
-                        placeholder="Observaciones del movimiento"
-                    ></textarea>
                 </div>
 
             </div>
-
-            <div class="modal-footer">
-
-                <button
-                    type="button"
-                    class="btn btn-outline-secondary"
-                    data-bs-dismiss="modal"
-                >
-                    Cancelar
-                </button>
-
-                <button
-                    type="button"
-                    class="btn btn-gray"
-                    id="btnRegistrarSalida"
-                >
-                    <i class="bi bi-check-lg me-1"></i>
-                    Registrar salida
-                </button>
-
-            </div>
-
         </div>
     </div>
-</div>
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
 
-    const salidaProducto = document.getElementById('salidaProducto');
-    const salidaCantidad = document.getElementById('salidaCantidad');
-    const stockDisponible = document.getElementById('stockDisponible');
-    const mensajeStock = document.getElementById('mensajeStock');
-    const btnRegistrarSalida = document.getElementById('btnRegistrarSalida');
+                const salidaProducto = document.getElementById('salidaProducto');
+                const salidaCantidad = document.getElementById('salidaCantidad');
+                const stockDisponible = document.getElementById('stockDisponible');
+                const mensajeStock = document.getElementById('mensajeStock');
+                const btnRegistrarSalida = document.getElementById('btnRegistrarSalida');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Actualizar stock al seleccionar producto
-    |--------------------------------------------------------------------------
-    */
+                /*
+                |--------------------------------------------------------------------------
+                | Actualizar stock al seleccionar producto
+                |--------------------------------------------------------------------------
+                */
 
-    salidaProducto.addEventListener('change', function () {
+                salidaProducto.addEventListener('change', function() {
 
-        const option = this.options[this.selectedIndex];
-        const stock = parseInt(option.dataset.stock || 0);
+                    const option = this.options[this.selectedIndex];
+                    const stock = parseInt(option.dataset.stock || 0);
 
-        salidaCantidad.max = stock;
+                    salidaCantidad.max = stock;
 
-        stockDisponible.innerHTML =
-            `<strong>Stock disponible:</strong> ${stock} unidad(es).`;
+                    stockDisponible.innerHTML =
+                        `<strong>Stock disponible:</strong> ${stock} unidad(es).`;
 
-        validarCantidadSalida();
-    });
-
-
-    /*
-    |--------------------------------------------------------------------------
-    | Validar cantidad
-    |--------------------------------------------------------------------------
-    */
-
-    function validarCantidadSalida() {
-
-        const option = salidaProducto.options[salidaProducto.selectedIndex];
-
-        if (!option || !option.dataset.stock) {
-            return false;
-        }
-
-        const stock = parseInt(option.dataset.stock);
-        const cantidad = parseInt(salidaCantidad.value || 0);
-
-        if (cantidad > stock) {
-
-            salidaCantidad.classList.add('is-invalid');
-
-            mensajeStock.textContent =
-                `No puedes retirar ${cantidad} unidad(es). Solo hay ${stock} disponible(s).`;
-
-            btnRegistrarSalida.disabled = true;
-
-            return false;
-        }
-
-        if (cantidad < 1) {
-            btnRegistrarSalida.disabled = true;
-            return false;
-        }
-
-        salidaCantidad.classList.remove('is-invalid');
-        btnRegistrarSalida.disabled = false;
-
-        return true;
-    }
+                    validarCantidadSalida();
+                });
 
 
-    salidaCantidad.addEventListener('input', validarCantidadSalida);
+                /*
+                |--------------------------------------------------------------------------
+                | Validar cantidad
+                |--------------------------------------------------------------------------
+                */
 
+                function validarCantidadSalida() {
 
-    /*
-    |--------------------------------------------------------------------------
-    | Registrar salida
-    |--------------------------------------------------------------------------
-    */
+                    const option = salidaProducto.options[salidaProducto.selectedIndex];
 
-    btnRegistrarSalida.addEventListener('click', async function () {
+                    if (!option || !option.dataset.stock) {
+                        return false;
+                    }
 
-        if (!salidaProducto.value) {
-            alert('Debe seleccionar un producto.');
-            return;
-        }
+                    const stock = parseInt(option.dataset.stock);
+                    const cantidad = parseInt(salidaCantidad.value || 0);
 
-        if (!validarCantidadSalida()) {
-            return;
-        }
+                    if (cantidad > stock) {
 
-        const data = {
-            product_id: parseInt(salidaProducto.value),
-            type: 'salida',
-            quantity: parseInt(salidaCantidad.value),
-            reason: document.getElementById('salidaMotivo').value,
-            observation: document.getElementById('salidaObservacion').value
-        };
+                        salidaCantidad.classList.add('is-invalid');
 
-        try {
+                        mensajeStock.textContent =
+                            `No puedes retirar ${cantidad} unidad(es). Solo hay ${stock} disponible(s).`;
 
-            btnRegistrarSalida.disabled = true;
+                        btnRegistrarSalida.disabled = true;
 
-            const response = await fetch('/api/movements', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(data)
-            });
+                        return false;
+                    }
 
-            const result = await response.json();
+                    if (cantidad < 1) {
+                        btnRegistrarSalida.disabled = true;
+                        return false;
+                    }
 
-            if (!response.ok) {
+                    salidaCantidad.classList.remove('is-invalid');
+                    btnRegistrarSalida.disabled = false;
 
-                if (result.errors) {
-
-                    const mensajes = Object.values(result.errors)
-                        .flat()
-                        .join('\n');
-
-                    throw new Error(mensajes);
+                    return true;
                 }
 
-                throw new Error(
-                    result.message || 'No se pudo registrar la salida.'
-                );
-            }
 
-            /*
-             * Cerramos el modal
-             */
-            const modalElement = document.getElementById('modalSalida');
-            const modal = bootstrap.Modal.getInstance(modalElement);
-
-            if (modal) {
-                modal.hide();
-            }
-
-            /*
-             * Recargamos la página para actualizar:
-             * - stock
-             * - alerta
-             * - historial
-             */
-            window.location.reload();
-
-        } catch (error) {
-
-            alert(error.message);
-
-            btnRegistrarSalida.disabled = false;
-        }
-    });
+                salidaCantidad.addEventListener('input', validarCantidadSalida);
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Limpiar modal al cerrarlo
-    |--------------------------------------------------------------------------
-    */
+                /*
+                |--------------------------------------------------------------------------
+                | Registrar salida
+                |--------------------------------------------------------------------------
+                */
 
-    document
-        .getElementById('modalSalida')
-        .addEventListener('hidden.bs.modal', function () {
+                btnRegistrarSalida.addEventListener('click', async function() {
 
-            salidaProducto.value = '';
-            salidaCantidad.value = '';
-            salidaCantidad.removeAttribute('max');
+                    if (!salidaProducto.value) {
+                        alert('Debe seleccionar un producto.');
+                        return;
+                    }
 
-            document.getElementById('salidaMotivo').value = '';
-            document.getElementById('salidaObservacion').value = '';
+                    if (!validarCantidadSalida()) {
+                        return;
+                    }
 
-            stockDisponible.innerHTML =
-                'Seleccione un producto para consultar el stock disponible.';
+                    const data = {
+                        product_id: parseInt(salidaProducto.value),
+                        type: 'salida',
+                        quantity: parseInt(salidaCantidad.value),
+                        reason: document.getElementById('salidaMotivo').value,
+                        observation: document.getElementById('salidaObservacion').value
+                    };
 
-            salidaCantidad.classList.remove('is-invalid');
+                    try {
 
-            btnRegistrarSalida.disabled = false;
-        });
+                        btnRegistrarSalida.disabled = true;
 
-});
-</script>
-@endpush
+                        const response = await fetch('/api/movements', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
 
-@push('scripts')
-<script>
-document.addEventListener('DOMContentLoaded', function () {
+                        const result = await response.json();
 
-    const btnRegistrarEntrada = document.getElementById('btnRegistrarEntrada');
+                        if (!response.ok) {
 
-    btnRegistrarEntrada.addEventListener('click', async function () {
+                            if (result.errors) {
 
-        const productId = document.getElementById('entradaProducto').value;
-        const quantity = document.getElementById('entradaCantidad').value;
-        const reason = document.getElementById('entradaMotivo').value;
-        const observation = document.getElementById('entradaObservacion').value;
+                                const mensajes = Object.values(result.errors)
+                                    .flat()
+                                    .join('\n');
 
-        if (!productId) {
-            alert('Seleccione un producto.');
-            return;
-        }
+                                throw new Error(mensajes);
+                            }
 
-        if (!quantity || quantity < 1) {
-            alert('Ingrese una cantidad válida.');
-            return;
-        }
+                            throw new Error(
+                                result.message || 'No se pudo registrar la salida.'
+                            );
+                        }
 
-        try {
+                        /*
+                         * Cerramos el modal
+                         */
+                        const modalElement = document.getElementById('modalSalida');
+                        const modal = bootstrap.Modal.getInstance(modalElement);
 
-            const response = await fetch('/api/movements', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({
-                    product_id: productId,
-                    type: 'entrada',
-                    quantity: quantity,
-                    reason: reason,
-                    observation: observation
-                })
+                        if (modal) {
+                            modal.hide();
+                        }
+
+                        /*
+                         * Recargamos la página para actualizar:
+                         * - stock
+                         * - alerta
+                         * - historial
+                         */
+                        window.location.reload();
+
+                    } catch (error) {
+
+                        alert(error.message);
+
+                        btnRegistrarSalida.disabled = false;
+                    }
+                });
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Limpiar modal al cerrarlo
+                |--------------------------------------------------------------------------
+                */
+
+                document
+                    .getElementById('modalSalida')
+                    .addEventListener('hidden.bs.modal', function() {
+
+                        salidaProducto.value = '';
+                        salidaCantidad.value = '';
+                        salidaCantidad.removeAttribute('max');
+
+                        document.getElementById('salidaMotivo').value = '';
+                        document.getElementById('salidaObservacion').value = '';
+
+                        stockDisponible.innerHTML =
+                            'Seleccione un producto para consultar el stock disponible.';
+
+                        salidaCantidad.classList.remove('is-invalid');
+
+                        btnRegistrarSalida.disabled = false;
+                    });
+
             });
+        </script>
+    @endpush
 
-            const data = await response.json();
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
 
-            if (!response.ok) {
-                throw new Error(
-                    data.message || 'No se pudo registrar la entrada.'
-                );
-            }
+                const btnRegistrarEntrada = document.getElementById('btnRegistrarEntrada');
 
-            alert('Entrada registrada correctamente.');
+                btnRegistrarEntrada.addEventListener('click', async function() {
 
-            window.location.reload();
+                    const productId = document.getElementById('entradaProducto').value;
+                    const quantity = document.getElementById('entradaCantidad').value;
+                    const reason = document.getElementById('entradaMotivo').value;
+                    const observation = document.getElementById('entradaObservacion').value;
 
-        } catch (error) {
+                    if (!productId) {
+                        alert('Seleccione un producto.');
+                        return;
+                    }
 
-            console.error(error);
+                    if (!quantity || quantity < 1) {
+                        alert('Ingrese una cantidad válida.');
+                        return;
+                    }
 
-            alert(error.message);
-        }
-    });
+                    try {
 
-});
-</script>
-@endpush
+                        const response = await fetch('/api/movements', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                product_id: productId,
+                                type: 'entrada',
+                                quantity: quantity,
+                                reason: reason,
+                                observation: observation
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (!response.ok) {
+                            throw new Error(
+                                data.message || 'No se pudo registrar la entrada.'
+                            );
+                        }
+
+                        alert('Entrada registrada correctamente.');
+
+                        window.location.reload();
+
+                    } catch (error) {
+
+                        console.error(error);
+
+                        alert(error.message);
+                    }
+                });
+
+            });
+        </script>
+    @endpush
 
 @endsection

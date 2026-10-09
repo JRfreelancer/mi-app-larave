@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Notifications\StockProduct;
 use Illuminate\Support\Facades\Notification;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class InventoryMovementController extends Controller
 {
@@ -26,26 +27,26 @@ class InventoryMovementController extends Controller
     /**
      * Vista web de movimientos.
      */
-public function view()
-{
-    $products = Product::orderBy('name')->get();
+    public function view()
+    {
+        $products = Product::orderBy('name')->get();
 
-    $movements = InventoryMovement::with('product')
-        ->latest()
-        ->get();
+        $movements = InventoryMovement::with('product')
+            ->latest()
+            ->get();
 
-    $lowStockLimit = config('inventory.low_stock_limit');
+        $lowStockLimit = config('inventory.low_stock_limit');
 
-    $lowStockProducts = Product::where('quantity', '<', $lowStockLimit)
-        ->orderBy('quantity', 'asc')
-        ->get();
+        $lowStockProducts = Product::where('quantity', '<', $lowStockLimit)
+            ->orderBy('quantity', 'asc')
+            ->get();
 
-    return view('movements.index', compact(
-        'products',
-        'movements',
-        'lowStockProducts'
-    ));
-}
+        return view('movements.index', compact(
+            'products',
+            'movements',
+            'lowStockProducts'
+        ));
+    }
 
     /**
      * API: registrar entrada o salida.
@@ -124,4 +125,65 @@ public function view()
             'movement' => $movement->load('product'),
         ], 201);
     }
+
+    /**
+     * Generar PDF individual de un movimiento.
+     */
+    public function generatePDF(InventoryMovement $movement)
+    {
+        $movement->load('product');
+
+        $pdf = Pdf::loadView('movements.pdf', compact('movement'))
+            ->setPaper('a4', 'portrait');
+
+        return $pdf->stream(
+            'movimiento-' . $movement->id . '.pdf'
+        );
+    }
+
+    /**
+ * Generar PDF general de movimientos.
+ */
+public function generateGeneralPDF()
+{
+    $movements = InventoryMovement::with('product')
+        ->latest()
+        ->get();
+
+    $totalMovements = $movements->count();
+
+    $totalEntradas = $movements
+        ->where('type', 'entrada')
+        ->sum('quantity');
+
+    $totalSalidas = $movements
+        ->where('type', 'salida')
+        ->sum('quantity');
+
+    $cantidadEntradas = $movements
+        ->where('type', 'entrada')
+        ->count();
+
+    $cantidadSalidas = $movements
+        ->where('type', 'salida')
+        ->count();
+
+    $fechaDesde = $movements->last()?->created_at;
+    $fechaHasta = $movements->first()?->created_at;
+
+    $pdf = Pdf::loadView('movements.general-pdf', compact(
+        'movements',
+        'totalMovements',
+        'totalEntradas',
+        'totalSalidas',
+        'cantidadEntradas',
+        'cantidadSalidas',
+        'fechaDesde',
+        'fechaHasta'
+    ))->setPaper('a4', 'portrait');
+
+    return $pdf->stream(
+        'reporte-general-movimientos.pdf'
+    );
+}
 }
